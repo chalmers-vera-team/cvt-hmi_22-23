@@ -1,3 +1,5 @@
+/*
+
 // C++ code
 //
 
@@ -112,7 +114,7 @@ void loop()
             A = A+PP;
             buttonPushCounter++;
             lcd.clear();
-
+            
           }
           else
           {
@@ -148,12 +150,13 @@ void loop()
     //for next time through the loop
     lastButtonState = buttonState;
   }
+
   if (buttonState == LOW)
   {
     if ((tottime - pressdown) > 500)
     {
       PT = 1;
-    }  
+    }
     if (tottime - pressdown > 3000)
     {
       PT = 2;
@@ -162,7 +165,7 @@ void loop()
     {
       PT = 3;
     }
-  } 
+  }
 
 
 
@@ -174,7 +177,7 @@ void loop()
     {
       
       magnetRotation++;
-      velocity = wheelc / 4 / (tottime - RPT) / 1000; // RPT = rotation previous time 
+      velocity = wheelc / (4 * (tottime - RPT) * 1000); // RPT = rotation previous time 
       RPM = 1 / ((tottime - RPT) / 1000 / 60 * 4);
       distance = magnetRotation * wheelc / 4;
 
@@ -266,7 +269,7 @@ void loop()
             {
             lcd.setCursor(7,0);
             lcd.print((Avg/1000)%60);
-            }   
+            }
           }
           else
           {
@@ -419,10 +422,4 @@ void loop()
       }
 }
 
-
-
-
-
-
-
-
+//*/
