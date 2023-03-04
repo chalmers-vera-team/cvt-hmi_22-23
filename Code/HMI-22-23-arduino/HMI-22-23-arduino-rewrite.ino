@@ -42,6 +42,42 @@ float ERPM = 0;                     // Engine revolutions per minute
 void(* resetFunc) (void) = 0;
 
 
+void timecalc(time,xpos,ypos)
+{
+
+  lcd.setcursor(xpos+2,ypos); lcd.print(:)
+
+  if (time/60000 < 10)
+  {
+  lcd.setCursor(xpos,ypos);
+  lcd.print(0);
+  lcd.setCursor(xpos+1,ypos);
+  lcd.print(time/60000);
+  }
+  else
+  {
+  lcd.setCursor(xpos,ypos);
+  lcd.print(time/60000);
+  }
+
+
+
+  if ((time/1000)%60 < 10)
+  {
+  lcd.setCursor(xpos+3,ypos);
+  lcd.print(0);
+  lcd.setCursor(xpos+4,ypos);
+  lcd.print((time/1000)%60);
+  }
+  else
+  {
+  lcd.setCursor(xpos+3,0);
+  lcd.print((time/1000)%60);
+  }
+
+}
+
+
 void setup()
 {
 
