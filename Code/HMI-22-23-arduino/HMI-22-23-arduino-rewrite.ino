@@ -15,7 +15,7 @@ boolean lastButtonState = HIGH;     // Previous state of the button
 // Time controll variables
 uint32_t lapCount = 0;
 uint32_t currentLapTime;            // 
-int totalTime;                 // 
+uint32_t totalTime;                 // 
 int buttonPressdownTime;       // Time returned from millis() when button press was initiated
 uint32_t lastLapTime;               //
 uint32_t completedLapTimeSum;       // Sum of all completed lap times
@@ -41,38 +41,55 @@ float ERPM = 0;                     // Engine revolutions per minute
 // Declare reset function at address 0, used to reset the arduino through software
 void(* resetFunc) (void) = 0;
 
-
-void timecalc(time,xpos,ypos)
+// Correctly formats and prints time starting at specified x and y positions
+// precision 1 gives minutes, 2 also gives seconds, and 3 also gives tenths and hundreds
+void lcdTimePrint(uint32_t inp_time, int xpos,int ypos, int precision)
 {
 
-  lcd.setcursor(xpos+2,ypos); lcd.print(:)
-
-  if (time/60000 < 10)
+  // Minutes
+  if (precision > 0)
   {
-  lcd.setCursor(xpos,ypos);
-  lcd.print(0);
-  lcd.setCursor(xpos+1,ypos);
-  lcd.print(time/60000);
+    if (inp_time/60000 < 10)
+    {
+    lcd.setCursor(xpos,ypos); lcd.print(0);
+    lcd.setCursor(xpos+1,ypos); lcd.print(inp_time/60000);
+    }
+    else
+    {
+    lcd.setCursor(xpos,ypos); lcd.print(inp_time/60000);
+    }
   }
-  else
+
+  // Seconds
+  if (precision > 1)
   {
-  lcd.setCursor(xpos,ypos);
-  lcd.print(time/60000);
+    lcd.setCursor(xpos+2,ypos); lcd.print(":");
+
+    if ((inp_time/1000)%60 < 10)
+    {
+    lcd.setCursor(xpos+3,ypos); lcd.print(0);
+    lcd.setCursor(xpos+4,ypos); lcd.print((inp_time/1000)%60);
+    }
+    else
+    {
+    lcd.setCursor(xpos+3,0); lcd.print((inp_time/1000)%60);
+    }
   }
 
-
-
-  if ((time/1000)%60 < 10)
+  // Tenths and hundreds
+  if (precision > 2)
   {
-  lcd.setCursor(xpos+3,ypos);
-  lcd.print(0);
-  lcd.setCursor(xpos+4,ypos);
-  lcd.print((time/1000)%60);
-  }
-  else
-  {
-  lcd.setCursor(xpos+3,0);
-  lcd.print((time/1000)%60);
+    lcd.setCursor(xpos+5,ypos); lcd.print(":");
+
+    if ((inp_time%1000)/10 < 10)
+    {
+    lcd.setCursor(xpos+6,ypos); lcd.print(0);
+    lcd.setCursor(xpos+7,ypos); lcd.print((inp_time%1000)/10);
+    }
+    else
+    {
+    lcd.setCursor(xpos+6,0); lcd.print((inp_time%1000)/10);
+    }
   }
 
 }
@@ -95,14 +112,16 @@ void setup()
 void loop()
 {
 
+
+
   // Waiting for initial interaction from user
   while(startCompensationTime == 0)
   {
+    lcd.setCursor(0,0); lcd.print("Press to Start");
     if (digitalRead(buttonPin) == LOW)
     { 
       startCompensationTime = millis();
       completedLapTimeSum = 0;
-      currentScreenMode = 1;
       lcd.clear();
     }
   }
@@ -131,7 +150,7 @@ void loop()
     
     else
     {
-      calculatePressTimeIndex();
+      
       if (pressTimeIndex == 0)
       {
         currentScreenMode++;          // Switch to next screen layout
@@ -145,17 +164,19 @@ void loop()
         lastLapTime = currentLapTime;
         currentLapTime = 0;
       }
-      else if (pressTimeIndex == 3)
-      {
-        resetFunc();
-      }
+      else if (pressTimeIndex == 3) resetFunc();
 
       buttonPressdownTime = 0;
+      pressTimeIndex = 0;
     }
 
     lastButtonState = buttonState;
   }
-  
+  else if(buttonState == LOW) calculatePressTimeIndex();
+
+
+
+  lcdPrinter();
 }
 
 
@@ -166,4 +187,37 @@ void calculatePressTimeIndex()
   if ((totalTime - buttonPressdownTime) > 500) { pressTimeIndex = 1; }    // Registers a lap and starts a new one.
   if ((totalTime - buttonPressdownTime) > 3000)  { pressTimeIndex = 2; }    // Does nothing (intended for user error in operation)
   if ((totalTime - buttonPressdownTime) > 10000) { pressTimeIndex = 3; }    // Performs a software reset of the arduino
+}
+
+void lcdPrinter()
+{
+  switch (currentScreenMode) // choose what to display based on buttonPushCounter value
+  {
+
+    case 1:
+
+      lcd.setCursor(0,0); lcd.print("CLT");
+      lcdTimePrint(currentLapTime, 4, 0, 2);
+
+      lcd.setCursor(0,1); lcd.print("Laps");
+      lcd.setCursor(5,1); lcd.print(lapCount);
+      break;
+
+    case 2:
+      lcd.setCursor(0,0); lcd.print("Avg");
+      lcdTimePrint(averageLapTime, 4, 0, 3);
+      lcd.setCursor(0,1); lcd.print("LLT");
+      lcdTimePrint(lastLapTime, 4, 1, 3);
+
+      break;
+
+    case 3: 
+      break;
+
+    case 4:
+      break;
+
+    case 5:
+      break;
+  }
 }
