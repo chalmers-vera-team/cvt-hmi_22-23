@@ -1,5 +1,5 @@
+/*
 
-/
 
 // C++ code
 //
@@ -295,7 +295,7 @@ void loop()
 
           if (buttonHoldCounter > 0)
           {
-            lcdTimePrint(tottime-PP, Avg, 0, 2)
+            lcdTimePrint(tottime-PP, Avg, 0, 2);
           }
           else
           {
@@ -317,7 +317,7 @@ void loop()
           {
             //lcd.setCursor(10,1); lcd.print(((tottime-PP)%1000)/100);
 
-            lcdTimePrint(tottime-PP, 4, 1, 2)
+            lcdTimePrint(tottime-PP, 4, 1, 2);
 
         	
           break;

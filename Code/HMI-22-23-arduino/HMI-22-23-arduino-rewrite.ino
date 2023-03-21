@@ -1,3 +1,5 @@
+/*
+
 #define LOW 0x0
 #define HIGH 0x1
 
@@ -221,3 +223,6 @@ void lcdPrinter()
       break;
   }
 }
+
+
+*/
