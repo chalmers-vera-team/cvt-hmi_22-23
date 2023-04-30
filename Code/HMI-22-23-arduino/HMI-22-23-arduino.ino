@@ -75,7 +75,6 @@ void loop()
     {
       startCompensationTime = currentLapTime;
       totalLapTime = startCompensationTime; // The total laptime is displaced with the start compensation time
-      screenToDisplay++;
       lcd.clear();
     }
 
@@ -112,22 +111,22 @@ void loop()
     if (totalTime - buttonPressDownTime > 10000)
     {
       lcd.setCursor(15, 0);
-      lcd.print(3);
+      lcd.print("R");
     }
     else if (totalTime - buttonPressDownTime > 3000)
     {
       lcd.setCursor(15, 0);      
-      lcd.print("C");
+      lcd.print("N");
     }
     else if (totalTime - buttonPressDownTime > 500)
     {
       lcd.setCursor(15, 0);
-      lcd.print(2);
+      lcd.print("C");
     }
     else
     {
       lcd.setCursor(15, 0);
-      lcd.print(1);
+      lcd.print("P");
     }
   }
 
@@ -142,9 +141,9 @@ void loop()
     {
       velocity = 3.6 * wheelc / ((double) (totalTime - RPT) / 1000); // RPT = rotation previous currentLapTime 
       RPM = 1 / ((double) (totalTime - RPT) / 1000 / 60);
-      distance = magnetRotation * wheelc / 4;
+      distance += wheelc / 4;
 
-      RPT = totalTime;    
+      RPT = totalTime;
     }
     
     magnetRotation++;
@@ -174,12 +173,13 @@ void loop()
     case 3:
       lcd.setCursor(0, 0);
       lcd.print("V=");
+      if (velocity <= 10) { lcd.setCursor(5, 0); lcd.print(" "); }
       lcd.setCursor(2, 0);
-      lcd.print(velocity);
+      lcd.print(velocity, 1);
       lcd.setCursor(0, 1);
       lcd.print("D= ");
       lcd.setCursor(2, 1);
-      lcd.print(distance);
+      lcd.print(distance, 0);
       lcd.setCursor(7, 1);
       lcd.print("RPM=");
       lcd.setCursor(11, 1);
@@ -383,12 +383,12 @@ void loop()
 
 void onButtonTrigger() 
 {
-  if(digitalRead(buttonPin) == HIGH)
-  {    
+  if(digitalRead(buttonPin))
+  {
     buttonPressed = HIGH;
     if (totalTime - buttonPressDownTime > 10000) buttonActionIndex = 3;
-    else if (totalTime - buttonPressDownTime > 3000) buttonActionIndex = 0;
-    else if (totalTime - buttonPressDownTime > 500) buttonActionIndex = 2;
+    else if (totalTime - buttonPressDownTime > 3000) { buttonActionIndex = 0; lcd.setCursor(15, 0); lcd.print(" "); }
+    else if (totalTime - buttonPressDownTime > 500) { buttonActionIndex = 2; lcd.setCursor(15, 0); lcd.print(" "); }
     else buttonActionIndex = 1;
     
     buttonPressDownTimeStarted = LOW;
